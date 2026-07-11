@@ -1,0 +1,18 @@
+Date	Description	Amount
+2026-06-01	Apex Properties Rent	50,000
+2026-06-02	Metro Grocery Mart	12,500
+2026-06-03	City Power & Light	8,500
+2026-06-05	Shell Fuel Station	6,000
+2026-06-08	Netflix Subscription	1,500
+2026-06-10	Organic Foods Market	9,800
+2026-06-12	Prime Video	1,200
+2026-06-14	Downtown Bistro Dinner	7,500
+2026-06-15	State Insurance Premium	11,000
+2026-06-18	Metro Grocery Mart	11,200
+2026-06-20	Gym Membership	4,500
+2026-06-22	Shell Fuel Station	5,500
+2026-06-25	Cloud Storage Auto-Renew	300
+2026-06-25	Cloud Storage Auto-Renew	300
+2026-06-28	Corner Coffee Shop	1,200
+2026-06-29	Apparel Boutique	19,000
+Total		150,000

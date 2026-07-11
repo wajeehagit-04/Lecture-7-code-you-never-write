@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Financial Reconciliation Report</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; background-color: #f8fafc; padding: 40px; max-width: 900px; margin: 0 auto; }
+        .header { border-bottom: 3px solid #0f172a; padding-bottom: 12px; margin-bottom: 24px; }
+        .cards { display: flex; gap: 16px; margin-bottom: 24px; }
+        .card { flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; text-align: center; }
+        .card-val { font-size: 18pt; font-weight: bold; margin-top: 4px; }
+        table { width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #e2e8f0; margin-bottom: 30px; border-radius: 6px; overflow: hidden; }
+        th { background-color: #1e293b; color: #ffffff; padding: 12px; text-align: left; font-size: 9.5pt; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 10pt; }
+        tr:nth-child(even) {{ background-color: #f8fafc; }}
+        .box { background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 16px; }
+        .badge-success { background-color: #dcfce7; color: #15803d; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px; }
+        .badge-warning { background-color: #fef9c3; color: #a16207; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px; }
+        .badge-danger { background-color: #fee2e2; color: #b91c1c; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin:0;">Reconciled Set of Books</h1>
+        <div style="color: #475569;">Match Screening & Biryani Night Fund Ledger</div>
+    </div>
+
+    <div class="cards">
+        <div class="card"><div>Expected Total</div><div class="card-val">PKR 42,000</div></div>
+        <div class="card"><div>Actual Collected</div><div class="card-val" style="color: #2563eb;">PKR 34,500</div></div>
+        <div class="card" style="background-color: #fff1f2; border-color: #fecdd3;"><div>Total Deficit</div><div class="card-val" style="color: #be123c;">PKR 7,500</div></div>
+    </div>
+
+    <h2>1. Household Ledger Status</h2>
+    <table>
+        <thead><tr><th>Flat</th><th>Resident Name</th><th>Expected (PKR)</th><th>Paid (PKR)</th><th>Variance (PKR)</th><th>Status</th></tr></thead>
+        <tbody>
+            <tr><td>101</td><td>Asad Khan</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>102</td><td>Tariq Mahmood</td><td>3,500</td><td>3,000</td><td style="color: #b91c1c;">-500</td><td><span class="badge-warning">PARTIAL</span></td></tr>
+            <tr><td>201</td><td>Zainab Bibi</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>204</td><td>The Chishti Family</td><td>3,500</td><td>0</td><td style="color: #b91c1c;">-3,500</td><td><span class="badge-danger">UNPAID</span></td></tr>
+            <tr><td>302</td><td>Bilal Ahmed</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>305</td><td>Ayesha Omar</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>401</td><td>Kamran M.</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>402</td><td>Asif Shah</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>406</td><td>Salman Raza</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>501</td><td>Haris Abbasi</td><td>3,500</td><td>0</td><td style="color: #b91c1c;">-3,500</td><td><span class="badge-danger">UNPAID</span></td></tr>
+            <tr><td>502</td><td>Sana Niazi</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+            <tr><td>601</td><td>The Jafri Family</td><td>3,500</td><td>3,500</td><td>0</td><td><span class="badge-success">FULLY PAID</span></td></tr>
+        </tbody>
+    </table>
+
+    <h2>2. Audit Trail (Processed App Statements)</h2>
+    <table>
+        <thead><tr><th>TXN ID</th><th>Source Name</th><th>Mapped Resident</th><th>Memo Context</th><th style="text-align: right;">Amount</th></tr></thead>
+        <tbody>
+            <tr><td style="font-family: monospace;">44102</td><td>a_khan92</td><td>Asad Khan (Flat 101)</td><td><i>"Biryani"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44103</td><td>Zainab Bibi</td><td>Zainab Bibi (Flat 201)</td><td><i>"match night"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44104</td><td>Bilal Ahmed</td><td>Bilal Ahmed (Flat 302)</td><td><i>"🏏🔥"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44105</td><td>Kamran M.</td><td>Kamran M. (401) & Asif Shah (402)</td><td><i>"Apt 401 and 402 [Dual Payment Split]"</i></td><td style="text-align: right;">7,000 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44106</td><td>Flat 10-C</td><td>Ayesha Omar (Flat 305)</td><td><i>"screen rent [Renter Account]"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44107</td><td>Tariq Mahmood</td><td>Tariq Mahmood (Flat 102)</td><td><i>"baki kal donga"</i></td><td style="text-align: right;">3,000 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44108</td><td>Apex Tech Solutions</td><td>Salman Raza (Flat 406)</td><td><i>"easypaisa transfer [Business Account Used]"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44109</td><td>user_9921_pk</td><td>Sana Niazi (Flat 502)</td><td><i>"S. N. [Matched via Initials]"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+            <tr><td style="font-family: monospace;">44110</td><td>The Jafri Family</td><td>The Jafri Family (Flat 601)</td><td><i>"Match pool"</i></td><td style="text-align: right;">3,500 PKR</td></tr>
+        </tbody>
+    </table>
+
+    <h2>3. Required Actions & Follow-Ups</h2>
+    <div class="box">
+        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #fcd34d;"><strong>⚠️ Flat 102 - Tariq Mahmood:</strong> Shortfall of <strong>PKR 500</strong>. Follow up to collect balance.</div>
+        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #fcd34d;"><strong>❌ Flat 204 - The Chishti Family:</strong> Missing full payment of <strong>PKR 3,500</strong>. No digital record found.</div>
+        <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #fcd34d;"><strong>❌ Flat 501 - Haris Abbasi:</strong> Missing full payment of <strong>PKR 3,500</strong>. No digital record found.</div>
+    </div>
+</body>
+</html>

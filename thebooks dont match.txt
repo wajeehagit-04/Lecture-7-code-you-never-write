@@ -1,0 +1,177 @@
+import os
+
+# 1. Define the master list of confirmed households (The Ledger)
+households = [
+    {"flat": "101", "name": "Asad Khan", "expected": 3500},
+    {"flat": "102", "name": "Tariq Mahmood", "expected": 3500},
+    {"flat": "201", "name": "Zainab Bibi", "expected": 3500},
+    {"flat": "204", "name": "The Chishti Family", "expected": 3500},
+    {"flat": "302", "name": "Bilal Ahmed", "expected": 3500},
+    {"flat": "305", "name": "Ayesha Omar", "expected": 3500},
+    {"flat": "401", "name": "Kamran M.", "expected": 3500},
+    {"flat": "402", "name": "Asif Shah", "expected": 3500},
+    {"flat": "406", "name": "Salman Raza", "expected": 3500},
+    {"flat": "501", "name": "Haris Abbasi", "expected": 3500},
+    {"flat": "502", "name": "Sana Niazi", "expected": 3500},
+    {"flat": "601", "name": "The Jafri Family", "expected": 3500},
+]
+
+# 2. Raw export data from the digital payment app
+raw_transactions = [
+    {"id": "44102", "amt": 3500, "memo": "Biryani", "from": "a_khan92"},
+    {"id": "44103", "amt": 3500, "memo": "match night", "from": "Zainab Bibi"},
+    {"id": "44104", "amt": 3500, "memo": "🏏🔥", "from": "Bilal Ahmed"},
+    {"id": "44105", "amt": 7000, "memo": "Apt 401 and 402", "from": "Kamran M."},
+    {"id": "44106", "amt": 3500, "memo": "screen rent", "from": "Flat 10-C"},
+    {"id": "44107", "amt": 3000, "memo": "baki kal donga", "from": "Tariq Mahmood"},
+    {"id": "44108", "amt": 3500, "memo": "easypaisa transfer", "from": "Apex Tech Solutions"},
+    {"id": "44109", "amt": 3500, "memo": "S. N.", "from": "user_9921_pk"},
+    {"id": "44110", "amt": 3500, "memo": "Match pool", "from": "The Jafri Family"},
+]
+
+# 3. Processing & Mapping Engine using the Interpretation Rules
+tx_rows_html = ""
+payments_by_flat = {h["flat"]: 0 for h in households}
+
+for tx in raw_transactions:
+    mapped_to = ""
+    notes = tx["memo"]
+    
+    # Apply matching logic rules
+    if tx["from"] == "a_khan92":
+        mapped_to = "Asad Khan (Flat 101)"
+        payments_by_flat["101"] += tx["amt"]
+    elif tx["from"] == "Zainab Bibi":
+        mapped_to = "Zainab Bibi (Flat 201)"
+        payments_by_flat["201"] += tx["amt"]
+    elif tx["from"] == "Bilal Ahmed":
+        mapped_to = "Bilal Ahmed (Flat 302)"
+        payments_by_flat["302"] += tx["amt"]
+    elif tx["from"] == "Kamran M.":
+        mapped_to = "Kamran M. (401) & Asif Shah (402)"
+        payments_by_flat["401"] += 3500
+        payments_by_flat["402"] += 3500
+        notes += " [Dual Payment Split]"
+    elif tx["from"] == "Flat 10-C":
+        mapped_to = "Ayesha Omar (Flat 305)"
+        payments_by_flat["305"] += tx["amt"]
+        notes += " [Renter Account]"
+    elif tx["from"] == "Tariq Mahmood":
+        mapped_to = "Tariq Mahmood (Flat 102)"
+        payments_by_flat["102"] += tx["amt"]
+    elif tx["from"] == "Apex Tech Solutions":
+        mapped_to = "Salman Raza (Flat 406)"
+        payments_by_flat["406"] += tx["amt"]
+        notes += " [Business Account Used]"
+    elif tx["from"] == "user_9921_pk":
+        mapped_to = "Sana Niazi (Flat 502)"
+        payments_by_flat["502"] += tx["amt"]
+        notes += " [Matched via Initials]"
+    elif tx["from"] == "The Jafri Family":
+        mapped_to = "The Jafri Family (Flat 601)"
+        payments_by_flat["601"] += tx["amt"]
+
+    tx_rows_html += f"""
+    <tr>
+        <td style="font-family: monospace;">{tx['id']}</td>
+        <td>{tx['from']}</td>
+        <td><strong>{mapped_to}</strong></td>
+        <td><i>"{notes}"</i></td>
+        <td style="text-align: right;">{tx['amt']:,} PKR</td>
+    </tr>
+    """
+
+# 4. Generate Ledger Rows and calculate totals
+ledger_rows_html = ""
+total_expected = 0
+total_collected = 0
+follow_ups_html = ""
+
+for h in households:
+    flat = h["flat"]
+    name = h["name"]
+    expected = h["expected"]
+    paid = payments_by_flat[flat]
+    variance = paid - expected
+    
+    total_expected += expected
+    total_collected += paid
+    
+    if variance == 0:
+        status_badge = '<span style="background-color: #dcfce7; color: #15803d; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px;">FULLY PAID</span>'
+    elif paid > 0:
+        status_badge = '<span style="background-color: #fef9c3; color: #a16207; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px;">PARTIAL</span>'
+        follow_ups_html += f'<div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #fcd34d;"><strong>⚠️ Flat {flat} - {name}:</strong> Shortfall of <strong>PKR {abs(variance):,}</strong>. Follow up to collect balance.</div>'
+    else:
+        status_badge = '<span style="background-color: #fee2e2; color: #b91c1c; padding: 2px 6px; font-size: 8pt; font-weight: bold; border-radius: 4px;">UNPAID</span>'
+        follow_ups_html += f'<div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #fcd34d;"><strong>❌ Flat {flat} - {name}:</strong> Missing full payment of <strong>PKR {expected:,}</strong>. No digital record found.</div>'
+
+    variance_style = 'color: #b91c1c;' if variance < 0 else ''
+    
+    ledger_rows_html += f"""
+    <tr>
+        <td>{flat}</td>
+        <td>{name}</td>
+        <td>{expected:,}</td>
+        <td>{paid:,}</td>
+        <td style="{variance_style}">{variance:,}</td>
+        <td>{status_badge}</td>
+    </tr>
+    """
+
+total_deficit = total_expected - total_collected
+
+# 5. Build Complete HTML Page Template
+html_template = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Financial Reconciliation Report</title>
+    <style>
+        body {{ font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; background-color: #f8fafc; padding: 40px; max-width: 900px; margin: 0 auto; }}
+        .header {{ border-bottom: 3px solid #0f172a; padding-bottom: 12px; margin-bottom: 24px; }}
+        .cards {{ display: flex; gap: 16px; margin-bottom: 24px; }}
+        .card {{ flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; text-align: center; }}
+        .card-val {{ font-size: 18pt; font-weight: bold; margin-top: 4px; }}
+        table {{ width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #e2e8f0; margin-bottom: 30px; border-radius: 6px; overflow: hidden; }}
+        th {{ background-color: #1e293b; color: #ffffff; padding: 12px; text-align: left; font-size: 9.5pt; text-transform: uppercase; }}
+        td {{ padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 10pt; }}
+        tr:nth-child(even) {{ background-color: #f8fafc; }}
+        .box {{ background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 16px; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 style="margin:0; uppercase">Reconciled Set of Books</h1>
+        <div style="color: #475569;">Match Screening & Biryani Night Fund Ledger</div>
+    </div>
+
+    <div class="cards">
+        <div class="card"><div style="font-size:8.5pt; color:#64748b; text-transform:uppercase;">Expected Total</div><div class="card-val">PKR {total_expected:,}</div></div>
+        <div class="card"><div style="font-size:8.5pt; color:#64748b; text-transform:uppercase;">Actual Collected</div><div class="card-val" style="color: #2563eb;">PKR {total_collected:,}</div></div>
+        <div class="card" style="background-color: #fff1f2; border-color: #fecdd3;"><div style="font-size:8.5pt; color:#64748b; text-transform:uppercase;">Total Deficit</div><div class="card-val" style="color: #be123c;">PKR {total_deficit:,}</div></div>
+    </div>
+
+    <h2>1. Household Ledger Status</h2>
+    <table>
+        <thead><tr><th>Flat</th><th>Resident Name</th><th>Expected (PKR)</th><th>Paid (PKR)</th><th>Variance (PKR)</th><th>Status</th></tr></thead>
+        <tbody>{ledger_rows_html}</tbody>
+    </table>
+
+    <h2>2. Audit Trail (Processed App Statements)</h2>
+    <table>
+        <thead><tr><th>TXN ID</th><th>Source Name</th><th>Mapped Resident</th><th>Memo Context</th><th style="text-align: right;">Amount</th></tr></thead>
+        <tbody>{tx_rows_html}</tbody>
+    </table>
+
+    <h2>3. Required Actions & Follow-Ups</h2>
+    <div class="box">{follow_ups_html}</div>
+</body>
+</html>"""
+
+# 6. Output the file locally
+output_filename = "reconciliation_report.html"
+with open(output_filename, "w", encoding="utf-8") as f:
+    f.write(html_template)
+
+print(f"Success! Reconciled books processed. Open '{os.path.abspath(output_filename)}' in your browser to view.")
