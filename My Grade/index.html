@@ -1,61 +1,71 @@
 <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Grade Audit Report</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 800px; background-color: #f8f9fa; color: #333; }
-            h2 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
-            .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eef2f3; }
-            th { background-color: #fcfcfc; color: #7f8c8d; font-size: 13px; text-transform: uppercase; }
-            .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
-            .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .metric { background: #fdfefe; border: 1px solid #eef2f3; padding: 15px; border-radius: 6px; text-align: center; }
-            .metric-num { font-size: 24px; font-weight: bold; color: #2c3e50; margin-top: 5px; }
-        </style>
-    </head>
-    <body>
-        <h2>Academic Grade Report & Audit</h2>
+<html>
+<head>
+    <title>Grade Audit Report</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 800px; background-color: #f8f9fa; color: #333; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eef2f3; }
+        th { background-color: #fcfcfc; color: #7f8c8d; font-size: 13px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; color: white; }
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .metric { background: #fdfefe; border: 1px solid #eef2f3; padding: 15px; border-radius: 6px; text-align: center; }
+        .metric-num { font-size: 24px; font-weight: bold; color: #2c3e50; margin-top: 5px; }
         
-        
-        <div class="card" style="border-top: 5px solid #f1c40f; text-align: center;">
-            <h3 style="margin-top:0;">Your Overall Class Standing</h3>
-            <div style="font-size: 48px; font-weight: bold; color: #f1c40f;">C</div>
-            <div style="font-size: 20px; font-weight: bold; margin: 10px 0;">79.29% (Satisfactory)</div>
-            <p style="color: #666; font-size: 14px;">
-                Quizzes (50% weight): 55.0/70.0 (78.6%) <br>
-                Final Exam (50% weight): 80.0/100.0 (80.0%)
-            </p>
-        </div>
-        
+        /* Navigation Style (Keeps links relative so they work inside your folder) */
+        .nav-menu { background: #2c3e50; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 25px; }
+        .nav-menu a { color: white; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 14px; }
+        .nav-menu a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
 
-        <div class="card">
-            <h3 style="margin-top:0;">Quiz Breakdown (50% Total Weight)</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">The quiz with the worst relative percentage performance is dropped.</p>
-            <div class="metric-grid">
-                <div class="metric">
-                    <div style="color: #7f8c8d; font-size: 13px;">ACTIVE QUIZZES TOTAL</div>
-                    <div class="metric-num">55.0 / 70.0 (78.6%)</div>
-                </div>
-                <div class="metric">
-                    <div style="color: #c0392b; font-size: 13px;">DROPPED LOWEST QUIZ</div>
-                    <div class="metric-num" style="color: #c0392b;">
-                        20.0/30.0 (66.7%)
-                    </div>
-                </div>
-            </div>
-            <table style="margin-top: 25px;">
-                <thead>
-                    <tr><th>Logged Quizzes</th><th>Percentage</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-    <tr><td>40.0/50.0</td><td>80.0%</td><td><span class="badge" style="background-color: #2ecc71;">Active</span></td></tr><tr><td>20.0/30.0</td><td>66.7%</td><td><span class="badge" style="background-color: #e74c3c;">Dropped</span></td></tr><tr><td>15.0/20.0</td><td>75.0%</td><td><span class="badge" style="background-color: #2ecc71;">Active</span></td></tr>
-                </tbody>
-            </table>
-        </div>
+    <!-- Simple Navigation Menu using safe Relative Paths -->
+    <div class="nav-menu">
+        <a href="../task1/index.html">Task 1</a>
+        <a href="../task2/index.html">Task 2</a>
+        <a href="../task3/index.html">Task 3</a>
+        <a href="index.html" style="color: #f1c40f;">Grade Report</a>
+    </div>
 
-        
-    </body>
-    </html>
+    <h2>Academic Grade Report & Audit</h2>
     
+    <div class="card" style="border-top: 5px solid #f1c40f; text-align: center;">
+        <h3 style="margin-top:0;">Your Overall Class Standing</h3>
+        <div style="font-size: 48px; font-weight: bold; color: #f1c40f;">C</div>
+        <div style="font-size: 20px; font-weight: bold; margin: 10px 0;">79.29% (Satisfactory)</div>
+        <p style="color: #666; font-size: 14px;">
+            Quizzes (50% weight): 55.0/70.0 (78.6%) <br>
+            Final Exam (50% weight): 80.0/100.0 (80.0%)
+        </p>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top:0;">Quiz Breakdown (50% Total Weight)</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">The quiz with the worst relative percentage performance is dropped.</p>
+        <div class="metric-grid">
+            <div class="metric">
+                <div style="color: #7f8c8d; font-size: 13px;">ACTIVE QUIZZES TOTAL</div>
+                <div class="metric-num">55.0 / 70.0 (78.6%)</div>
+            </div>
+            <div class="metric">
+                <div style="color: #c0392b; font-size: 13px;">DROPPED LOWEST QUIZ</div>
+                <div class="metric-num" style="color: #c0392b;">20.0/30.0 (66.7%)</div>
+            </div>
+        </div>
+        <table style="margin-top: 25px;">
+            <thead>
+                <tr><th>Logged Quizzes</th><th>Percentage</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>40.0/50.0</td><td>80.0%</td><td><span class="badge" style="background-color: #2ecc71;">Active</span></td></tr>
+                <tr><td>20.0/30.0</td><td>66.7%</td><td><span class="badge" style="background-color: #e74c3c;">Dropped</span></td></tr>
+                <tr><td>15.0/20.0</td><td>75.0%</td><td><span class="badge" style="background-color: #2ecc71;">Active</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+</body>
+</html>
