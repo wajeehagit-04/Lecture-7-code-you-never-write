@@ -193,7 +193,6 @@ try:
         """
 
     # --- BUILD HTML REPORT ---
-    # Updated navigation bar layout mapping to link directories accurately
     html_content = f"""<!DOCTYPE html>
     <html>
     <head>
@@ -209,19 +208,9 @@ try:
             .metric-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
             .metric {{ background: #fdfefe; border: 1px solid #eef2f3; padding: 15px; border-radius: 6px; text-align: center; }}
             .metric-num {{ font-size: 24px; font-weight: bold; color: #2c3e50; margin-top: 5px; }}
-            
-            .nav-menu {{ background: #2c3e50; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 25px; }}
-            .nav-menu a {{ color: white; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 14px; }}
-            .nav-menu a:hover {{ text-decoration: underline; }}
         </style>
     </head>
     <body>
-        <div class="nav-menu">
-            <a href="index.html" style="color: #f1c40f;">Grade Report</a>
-            <a href="../money-detective/index.html">Transaction Audit</a>
-            <a href="../books-dont-match/index.html">Books Reconciliation</a>
-        </div>
-
         <h2>Academic Grade Report & Audit</h2>
         
         {final_standing_html}
