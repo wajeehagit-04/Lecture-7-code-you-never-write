@@ -57,7 +57,7 @@ with open(ledger_file, "r", encoding="utf-8") as f:
         amt_val = int(amt)
         actual_collected += amt_val
         
-        # Append rows dynamically onto audit table log stream[cite: 4]
+        # Append rows dynamically onto audit table log stream
         audit_trail_html += f"""
         <tr>
             <td style="font-family: monospace;">{txid}</td>
@@ -67,7 +67,7 @@ with open(ledger_file, "r", encoding="utf-8") as f:
             <td style="text-align: right;">{amt_val:,} PKR</td>
         </tr>"""
         
-        # Smart Map Account Processing Logic (Parsing the split block manually)[cite: 4]
+        # Smart Map Account Processing Logic (Parsing the split block manually)
         if "401 and 402" in memo:
             split_amt = amt_val // 2
             residents["401"]["paid"] += split_amt
@@ -81,7 +81,7 @@ with open(ledger_file, "r", encoding="utf-8") as f:
 
 total_deficit = expected_total - actual_collected
 
-# 3. Build Ledger Status Tables Stream[cite: 4]
+# 3. Build Ledger Status Tables Stream
 ledger_rows_html = ""
 actions_html = ""
 
@@ -113,7 +113,7 @@ for flat, data in sorted(residents.items()):
         <td>{badge}</td>
     </tr>"""
 
-# 4. Generate Final Styled HTML Output[cite: 4]
+# 4. Generate Final Styled HTML Output
 html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -141,10 +141,8 @@ html_content = f"""<!DOCTYPE html>
 </head>
 <body>
     <div class="nav-menu">
-        <a href="../task1/index.html">Task 1</a>
-        <a href="../task2/index.html">Task 2</a>
-        <a href="../task-grade-report/index.html">Grade Report</a>
-        <a href="../task-transaction-audit/index.html">Transaction Audit</a>
+        <a href="../my-grade/index.html">Grade Report</a>
+        <a href="../money-detective/index.html">Transaction Audit</a>
         <a href="index.html" style="color: #f59e0b;">Books Reconciliation</a>
     </div>
 

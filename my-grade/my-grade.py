@@ -193,7 +193,7 @@ try:
         """
 
     # --- BUILD HTML REPORT ---
-    # Fixed braces configuration in the HTML text stream blocks
+    # Updated navigation bar layout mapping to link directories accurately
     html_content = f"""<!DOCTYPE html>
     <html>
     <head>
@@ -217,10 +217,9 @@ try:
     </head>
     <body>
         <div class="nav-menu">
-            <a href="../task1/index.html">Task 1</a>
-            <a href="../task2/index.html">Task 2</a>
             <a href="index.html" style="color: #f1c40f;">Grade Report</a>
-            <a href="../task-transaction-audit/index.html">Transaction Audit</a>
+            <a href="../money-detective/index.html">Transaction Audit</a>
+            <a href="../books-dont-match/index.html">Books Reconciliation</a>
         </div>
 
         <h2>Academic Grade Report & Audit</h2>

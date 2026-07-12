@@ -13,8 +13,6 @@ except NameError:
     script_dir = os.getcwd()
 
 default_input_file = os.path.join(script_dir, "transactions.txt")
-
-# CHANGED: Changed file output name from transaction_audit.html to index.html
 output_file = os.path.join(script_dir, "index.html")
 
 user_input = input("👉 Press ENTER to use default file, or paste a custom file path:\n> ").strip()
@@ -34,22 +32,18 @@ try:
         for idx, line in enumerate(f, 1):
             line = line.strip()
             if not line or "total" in line.lower() or "description" in line.lower():
-                continue # Skip blank lines and headers safely
+                continue 
             
-            # Smart Regex: Splits lines by tabs, pipes, or 2+ consecutive spaces
             parts = re.split(r'\t|\||\s{2,}', line)
             parts = [x.strip() for x in parts if x.strip()]
             
             if len(parts) >= 3:
-                # Expecting layout: Date, Description, Amount
                 date, desc, amt = parts[0], parts[1], parts[2]
                 transactions.append({"date": date, "desc": desc, "amt": amt})
                 merchant_counts[desc] = merchant_counts.get(desc, 0) + 1
             else:
-                # Fallback: If elements are separated by just a single space
                 parts_single = line.split(" ")
                 if len(parts_single) >= 3:
-                    # Try to capture a date pattern YYYY-MM-DD at the front
                     if re.match(r'\d{4}-\d{2}-\d{2}', parts_single[0]):
                         date = parts_single[0]
                         amt = parts_single[-1]
@@ -66,12 +60,10 @@ print(f"         -> Successfully parsed {len(transactions)} transaction rows.")
 
 if not transactions:
     print("\n❌ [CRITICAL ERROR]: Parsed 0 rows.")
-    print("   The script couldn't identify the columns automatically.")
-    print("   Please ensure your text file lines start with a date (like 2026-06-01).")
     input("\nPress ENTER to close...")
     sys.exit()
 
-# Compile the HTML page
+# FIX: Navigation links updated to perfectly match your live GitHub repository layout
 html_content = f"""<!DOCTYPE html>
 <html>
 <head>
@@ -88,19 +80,16 @@ html_content = f"""<!DOCTYPE html>
         .subscription {{ background-color: #fff2cc !important; color: #856404; }}
         .repeated {{ background-color: #d1ecf1 !important; color: #0c5460; }}
         
-        /* ADDED: Uniform Navigation Style matching your other assignments */
         .nav-menu {{ background: #2c3e50; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 25px; }}
         .nav-menu a {{ color: white; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 14px; }}
         .nav-menu a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
-    <!-- ADDED: Navigation Bar utilizing safe Relative Paths -->
     <div class="nav-menu">
-        <a href="../task1/index.html">Task 1</a>
-        <a href="../task2/index.html">Task 2</a>
-        <a href="../task-grade-report/index.html">Grade Report</a>
+        <a href="../my-grade/index.html">Grade Report</a>
         <a href="index.html" style="color: #f1c40f;">Transaction Audit</a>
+        <a href="../books-dont-match/index.html">Books Reconciliation</a>
     </div>
 
     <h2>Monthly Financial Audit Report</h2>
@@ -140,7 +129,7 @@ try:
     print(f"   👉 {output_file}")
     webbrowser.open('file://' + os.path.realpath(output_file))
 except Exception as e:
-    print(f"\n❌ [CRITICAL ERROR]: Could not write file to your hard drive: {e}")
+    print(f"\n❌ [CRITICAL ERROR]: Could not write file: {e}")
 
 print("\n" + "="*60)
 input("Execution finished. Press ENTER to close...")
