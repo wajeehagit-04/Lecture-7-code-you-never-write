@@ -13,7 +13,9 @@ except NameError:
     script_dir = os.getcwd()
 
 default_input_file = os.path.join(script_dir, "transactions.txt")
-output_file = os.path.join(script_dir, "transaction_audit.html")
+
+# CHANGED: Changed file output name from transaction_audit.html to index.html
+output_file = os.path.join(script_dir, "index.html")
 
 user_input = input("👉 Press ENTER to use default file, or paste a custom file path:\n> ").strip()
 input_file = os.path.normpath(user_input.strip('"').strip("'").strip()) if user_input else default_input_file
@@ -85,9 +87,22 @@ html_content = f"""<!DOCTYPE html>
         .duplicate {{ background-color: #ffcccc !important; color: #cc0000; font-weight: bold; }}
         .subscription {{ background-color: #fff2cc !important; color: #856404; }}
         .repeated {{ background-color: #d1ecf1 !important; color: #0c5460; }}
+        
+        /* ADDED: Uniform Navigation Style matching your other assignments */
+        .nav-menu {{ background: #2c3e50; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 25px; }}
+        .nav-menu a {{ color: white; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 14px; }}
+        .nav-menu a:hover {{ text-decoration: underline; }}
     </style>
 </head>
 <body>
+    <!-- ADDED: Navigation Bar utilizing safe Relative Paths -->
+    <div class="nav-menu">
+        <a href="../task1/index.html">Task 1</a>
+        <a href="../task2/index.html">Task 2</a>
+        <a href="../task-grade-report/index.html">Grade Report</a>
+        <a href="index.html" style="color: #f1c40f;">Transaction Audit</a>
+    </div>
+
     <h2>Monthly Financial Audit Report</h2>
     <p>Source file processed: <b>{os.path.basename(input_file)}</b></p>
     <div class="legend">

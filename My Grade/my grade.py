@@ -18,7 +18,7 @@ try:
     except NameError:
         script_dir = os.getcwd()
 
-    output_file = os.path.join(script_dir, "grade_report.html")
+    output_file = os.path.join(script_dir, "index.html")
 
     def get_letter_grade(percentage):
         for scale in GRADING_SCALE:
@@ -33,7 +33,6 @@ try:
         if len(matches) >= 2:
             return float(matches[0]), float(matches[1])
         elif len(matches) == 1:
-            # If they just wrote a single number, assume it's out of 100
             return float(matches[0]), 100.0
         raise ValueError("Invalid format. Use Earned/Total.")
 
@@ -42,7 +41,7 @@ try:
     print("         RAW MARKS GRADE AUDIT & TARGET CALCULATOR      ")
     print("=" * 60)
 
-    quizzes = []  # Will store dictionaries: {"earned": X, "total": Y, "pct": Z}
+    quizzes = []
     
     print("\n📝 ENTER QUIZ MARKS")
     print("Enter your quizzes using the format: Earned/Total")
@@ -51,7 +50,6 @@ try:
     
     while not quizzes:
         quiz_input = input("\nEnter your Quizzes:\n> ").strip()
-        # Find all pairs of numbers separated by slashes or spaces
         raw_pairs = re.findall(r'\d+(?:\.\d+)?\s*/\s*\d+(?:\.\d+)?', quiz_input)
         
         for pair in raw_pairs:
@@ -90,7 +88,7 @@ try:
             try:
                 earned, total = parse_fraction(final_input)
                 final_exam_earned = earned
-                final_total = total  # update total if they specified a different one
+                final_total = total
                 final_input_loop = False
             except ValueError:
                 print(f"❌ Please enter it as numbers with a slash (e.g. 40/{final_total}) or leave it blank.")
@@ -100,16 +98,13 @@ try:
     dropped_quiz = None
 
     if len(quizzes) >= 2:
-        # Find the quiz with the lowest percentage performance
         dropped_quiz = min(quizzes, key=lambda x: x["pct"])
         quizzes.remove(dropped_quiz)
 
-    # Aggregate total weights of active quizzes
     total_quiz_earned = sum(q["earned"] for q in quizzes)
     total_quiz_possible = sum(q["total"] for q in quizzes)
     quiz_average_pct = (total_quiz_earned / total_quiz_possible) * 100
 
-    # --- CALCULATE TARGET FORECAST OR FINAL STANDING ---
     final_standing_html = ""
     target_forecast_html = ""
 
@@ -130,20 +125,15 @@ try:
         </div>
         """
     else:
-        # User hasn't taken the exam. Ask for target grade!
         print("\n🎯 DESIRED GRADE PREVIEW")
         print("Which letter grade are you aiming for? (A, B, C, or D)")
         desired_letter = ""
         while desired_letter not in ["A", "B", "C", "D"]:
             desired_letter = input("Enter your target letter grade:\n> ").strip().upper()
 
-        # Find the benchmark scale minimum boundary
         target_scale = next(s for s in GRADING_SCALE if s["grade"] == desired_letter)
         target_min_pct = target_scale["min"]
 
-        # Math breakdown for missing score:
-        # Target% = (Quiz_Pct * 0.5) + (Final_Pct * 0.5)
-        # Final_Pct_Needed = (Target% - (Quiz_Pct * 0.5)) / 0.5
         needed_final_pct = (target_min_pct - (quiz_average_pct * 0.5)) / 0.5
         needed_marks = (needed_final_pct / 100) * final_total
 
@@ -164,7 +154,6 @@ try:
         </div>
         """
 
-        # Generate a general guide table for all letter choices
         targets_rows = ""
         for scale in GRADING_SCALE[:-1]:
             req_pct = (scale["min"] - (quiz_average_pct * 0.5)) / 0.5
@@ -204,6 +193,7 @@ try:
         """
 
     # --- BUILD HTML REPORT ---
+    # Fixed braces configuration in the HTML text stream blocks
     html_content = f"""<!DOCTYPE html>
     <html>
     <head>
@@ -219,9 +209,20 @@ try:
             .metric-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
             .metric {{ background: #fdfefe; border: 1px solid #eef2f3; padding: 15px; border-radius: 6px; text-align: center; }}
             .metric-num {{ font-size: 24px; font-weight: bold; color: #2c3e50; margin-top: 5px; }}
+            
+            .nav-menu {{ background: #2c3e50; padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 25px; }}
+            .nav-menu a {{ color: white; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 14px; }}
+            .nav-menu a:hover {{ text-decoration: underline; }}
         </style>
     </head>
     <body>
+        <div class="nav-menu">
+            <a href="../task1/index.html">Task 1</a>
+            <a href="../task2/index.html">Task 2</a>
+            <a href="index.html" style="color: #f1c40f;">Grade Report</a>
+            <a href="../task-transaction-audit/index.html">Transaction Audit</a>
+        </div>
+
         <h2>Academic Grade Report & Audit</h2>
         
         {final_standing_html}
@@ -251,7 +252,7 @@ try:
     for q in raw_quizzes:
         if dropped_quiz and q["earned"] == dropped_quiz["earned"] and q["total"] == dropped_quiz["total"]:
             html_content += f'<tr><td>{q["earned"]}/{q["total"]}</td><td>{q["pct"]:.1f}%</td><td><span class="badge" style="background-color: #e74c3c;">Dropped</span></td></tr>'
-            dropped_quiz = None  # Drop only once
+            dropped_quiz = None
         else:
             html_content += f'<tr><td>{q["earned"]}/{q["total"]}</td><td>{q["pct"]:.1f}%</td><td><span class="badge" style="background-color: #2ecc71;">Active</span></td></tr>'
 
@@ -265,7 +266,6 @@ try:
     </html>
     """
 
-    # Write out and launch
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(html_content)
     print("\n🎉 SUCCESS! Grade report HTML generated successfully!")
