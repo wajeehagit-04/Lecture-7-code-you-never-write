@@ -1,23 +1,247 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Audit Report</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 800px; background-color: #f8f9fa; color: #333; }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eef2f3; }
-        th { background-color: #fcfcfc; color: #7f8c8d; font-size: 13px; text-transform: uppercase; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 850px; background-color: #f8fafc; color: #1e293b; padding: 0 20px; }
+        h2 { text-align: center; color: #0f172a; margin-bottom: 30px; font-size: 2rem; }
         .btn-back { display: inline-block; margin-bottom: 20px; color: #3498db; text-decoration: none; font-weight: bold; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        .help-text { font-size: 0.85rem; color: #64748b; margin-top: -4px; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        button { background-color: #3498db; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: background 0.2s; }
+        button:hover { background-color: #2980b9; }
+        
+        /* Dashboard Metric Cards */
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px; }
+        .metric-card { padding: 20px; border-radius: 10px; text-align: center; color: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .metric-card span { display: block; font-size: 2rem; margin-top: 5px; }
+        
+        /* Badges for Quiz Status */
+        .quiz-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .badge.active { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge.dropped { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; text-decoration: line-through; }
+        
+        /* Prediction Matrix Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        
+        .error-msg { background-color: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+        .output-section { display: none; }
     </style>
 </head>
 <body>
     <a href="../index.html" class="btn-back">← Back to Dashboard</a>
-    <h2>Academic Grade Report & Audit</h2>
+    <h2>Academic Grade Audit & Forecasting Report</h2>
+    
     <div class="card">
-        <h3>Report Successfully Cleaned</h3>
-        <p>This page is now completely self-contained with no top menu links!</p>
+        <div class="form-group">
+            <label for="quizInput">Quiz Scores</label>
+            <div class="help-text">Paste scores separated by spaces or commas. Supports fractions (e.g., 15/20, 42/50, 9/10)</div>
+            <input type="text" id="quizInput" placeholder="e.g., 15/20, 18/20, 9/10, 45/50" value="15/20, 18/20, 9/10">
+        </div>
+        
+        <div class="form-group">
+            <label for="finalInput">Final Exam Score (0-100)</label>
+            <div class="help-text">Leave completely blank to trigger the Target Forecast Predictive Matrix</div>
+            <input type="number" id="finalInput" min="0" max="100" placeholder="e.g., 88 (Leave blank to forecast)">
+        </div>
+        
+        <button onclick="runGradeAudit()">Run Grade Audit Report</button>
+        
+        <div id="errorBox" class="error-msg"></div>
     </div>
+
+    <!-- Generated Audit Content (Hidden until calculated) -->
+    <div id="outputSection" class="output-section">
+        <div class="card">
+            <h3>Quiz Processing Log</h3>
+            <p class="help-text">The system automatically isolates and drops your lowest performing quiz based on percentage score.</p>
+            <div id="quizBadges" class="quiz-list"></div>
+        </div>
+
+        <div class="card">
+            <h3>Performance Matrix Metrics</h3>
+            <div id="metricGrid" class="metric-grid"></div>
+            
+            <div id="forecastZone" style="margin-top: 25px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mapped color hex codes following Prompt 5 constraints
+        const gradeConfig = {
+            'A': { color: '#2ecc71', label: 'Excellent (90% - 100%)' },
+            'B': { color: '#3498db', label: 'Good (80% - 89.9%)' },
+            'C': { color: '#9b59b6', label: 'Satisfactory (70% - 79.9%)' },
+            'D': { color: '#e67e22', label: 'Passing (60% - 69.9%)' },
+            'F': { color: '#e74c3c', label: 'Failing (Below 60%)' }
+        };
+
+        function getLetterGrade(pct) {
+            if (pct >= 90) return 'A';
+            if (pct >= 80) return 'B';
+            if (pct >= 70) return 'C';
+            if (pct >= 60) return 'D';
+            return 'F';
+        }
+
+        function runGradeAudit() {
+            const quizRaw = document.getElementById('quizInput').value;
+            const finalRaw = document.getElementById('finalInput').value.trim();
+            const errorBox = document.getElementById('errorBox');
+            const outputSection = document.getElementById('outputSection');
+            
+            errorBox.style.display = 'none';
+            outputSection.style.display = 'none';
+
+            // Master Try/Except simulation for input safeguarding
+            try {
+                // Prompt 2: Regular Expression match to pull raw numbers or fractions
+                const regex = /(\d+)\s*\/\s*(\d+)/g;
+                let match;
+                let parsedQuizzes = [];
+
+                while ((match = regex.exec(quizRaw)) !== null) {
+                    const earned = parseFloat(match[1]);
+                    const total = parseFloat(match[2]);
+                    if (total === 0) throw new Error("A quiz total points cannot be zero.");
+                    parsedQuizzes.push({
+                        text: match[0],
+                        percentage: (earned / total) * 100,
+                        dropped: false
+                    });
+                }
+
+                if (parsedQuizzes.length === 0) {
+                    throw new Error("No valid quiz fractions found. Use formats like 15/20 or 9/10.");
+                }
+
+                // Prompt 3: Drop Lowest Quiz Policy by percentage
+                if (parsedQuizzes.length >= 2) {
+                    let lowestIdx = 0;
+                    for (let i = 1; i < parsedQuizzes.length; i++) {
+                        if (parsedQuizzes[i].percentage < parsedQuizzes[lowestIdx].percentage) {
+                            lowestIdx = i;
+                        }
+                    }
+                    parsedQuizzes[lowestIdx].dropped = true;
+                }
+
+                // Calculate active quiz average 
+                let quizSum = 0;
+                let activeCount = 0;
+                let badgesHtml = '';
+
+                parsedQuizzes.forEach(q => {
+                    if (!q.dropped) {
+                        quizSum += q.percentage;
+                        activeCount++;
+                        badgesHtml += `<span class="badge active">✅ ${q.text} (${q.percentage.toFixed(1)}%)</span>`;
+                    } else {
+                        badgesHtml += `<span class="badge dropped">❌ Drop: ${q.text} (${q.percentage.toFixed(1)}%)</span>`;
+                    }
+                });
+
+                const finalQuizAvg = quizSum / activeCount;
+                document.getElementById('quizBadges').innerHTML = badgesHtml;
+
+                const metricGrid = document.getElementById('metricGrid');
+                const forecastZone = document.getElementById('forecastZone');
+
+                // Evaluate path based on whether Final Exam field was populated
+                if (finalRaw !== "") {
+                    // Prompt 1 base logic execution
+                    const finalScore = parseFloat(finalRaw);
+                    if (isNaN(finalScore) || finalScore < 0 || finalScore > 100) {
+                        throw new Error("Final exam score must be a valid number between 0 and 100.");
+                    }
+
+                    const finalClassGrade = (finalQuizAvg * 0.5) + (finalScore * 0.5);
+                    const letter = getLetterGrade(finalClassGrade);
+                    const config = gradeConfig[letter];
+
+                    metricGrid.innerHTML = `
+                        <div class="metric-card" style="background-color: #7f8c8d;">Quiz Contribution (50%)<span>${(finalQuizAvg * 0.5).toFixed(1)}%</span></div>
+                        <div class="metric-card" style="background-color: #7f8c8d;">Exam Contribution (50%)<span>${(finalScore * 0.5).toFixed(1)}%</span></div>
+                        <div class="metric-card" style="background-color: ${config.color};">Final Audit Mark<span>${finalClassGrade.toFixed(1)}% (${letter})</span></div>
+                    `;
+                    forecastZone.innerHTML = `<h4>Audit Status Verdict:</h4><p style="font-weight:bold; color:${config.color};">${config.label}</p>`;
+
+                } else {
+                    // Prompt 4: Predictive Forecasting Matrix Mode
+                    metricGrid.innerHTML = `
+                        <div class="metric-card" style="background-color: #34495e; grid-column: 1 / -1;">
+                            Active Quiz Average (50% Class Weight)
+                            <span>${finalQuizAvg.toFixed(1)}%</span>
+                        </div>
+                    `;
+
+                    let matrixRows = '';
+                    const targets = [
+                        { letter: 'A', cut: 90 },
+                        { letter: 'B', cut: 80 },
+                        { letter: 'C', cut: 70 },
+                        { letter: 'D', cut: 60 }
+                    ];
+
+                    targets.forEach(t => {
+                        // Formula: Target = (QuizAvg * 0.5) + (ExamNeeded * 0.5)
+                        // ExamNeeded = (Target - (QuizAvg * 0.5)) / 0.5
+                        const needed = (t.cut - (finalQuizAvg * 0.5)) / 0.5;
+                        let statusText = '';
+                        let cellStyle = '';
+
+                        if (needed <= 0) {
+                            statusText = '✨ Already Secured! (0% required)';
+                            cellStyle = 'color: #2ecc71; font-weight: bold;';
+                        } else if (needed > 100) {
+                            statusText = '❌ Mathematically Impossible (>100% required)';
+                            cellStyle = 'color: #e74c3c; font-weight: bold;';
+                        } else {
+                            statusText = `Requires <strong>${needed.toFixed(1)}%</strong> on final exam`;
+                        }
+
+                        matrixRows += `
+                            <tr>
+                                <td style="font-weight:bold; color: ${gradeConfig[t.letter].color};">${t.letter}</td>
+                                <td>${t.cut}%</td>
+                                <td style="${cellStyle}">${statusText}</td>
+                            </tr>
+                        `;
+                    });
+
+                    forecastZone.innerHTML = `
+                        <h3>Predictive Target Forecasting Matrix</h3>
+                        <p class="help-text">Review your required target metrics below to map final exam objectives.</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Target Bracket</th>
+                                    <th>Minimum Mark</th>
+                                    <th>Exam Benchmark Requirements</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${matrixRows}
+                            </tbody>
+                        </table>
+                    `;
+                }
+
+                outputSection.style.display = 'block';
+
+            } catch (err) {
+                errorBox.innerText = `⚠️ Setup Error Encountered: ${err.message}`;
+                errorBox.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

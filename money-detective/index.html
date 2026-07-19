@@ -1,20 +1,204 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transaction Audit Dashboard</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 900px; background-color: #f8f9fa; color: #333; }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px auto; max-width: 1000px; background-color: #f8fafc; color: #1e293b; padding: 0 20px; }
+        h2 { text-align: center; color: #0f172a; margin-bottom: 30px; font-size: 2rem; }
         .btn-back { display: inline-block; margin-bottom: 20px; color: #2ecc71; text-decoration: none; font-weight: bold; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #334155; }
+        .help-text { font-size: 0.85rem; color: #64748b; margin-top: -4px; margin-bottom: 12px; }
+        textarea { width: 100%; height: 180px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; box-sizing: border-box; font-size: 0.9rem; margin-bottom: 15px; }
+        
+        button { background-color: #2ecc71; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: background 0.2s; }
+        button:hover { background-color: #27ae60; }
+        
+        /* Metric Badges */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px; }
+        .summary-card { padding: 15px; border-radius: 8px; color: white; font-weight: bold; text-align: center; }
+        .bg-total { background-color: #475569; }
+        .bg-duplicate { background-color: #ef4444; }
+        .bg-recurring { background-color: #3b82f6; }
+        .summary-card span { display: block; font-size: 1.75rem; margin-top: 5px; }
+
+        /* Audit Table Formatting */
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f1f5f9; color: #475569; font-weight: 600; }
+        
+        /* Row Highlight Variations (Prompt 03) */
+        .row-duplicate { background-color: #fee2e2; color: #991b1b; } /* Soft Red */
+        .row-recurring { background-color: #dbeafe; color: #1e40af; } /* Soft Blue */
+        .row-normal { background-color: #ffffff; }
+        
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .badge-dup { background-color: #fca5a5; color: #7f1d1d; }
+        .badge-rec { background-color: #bfdbfe; color: #1e3a8a; }
+        .badge-ok { background-color: #e2e8f0; color: #334155; }
+
+        .explanation-box { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin-top: 25px; color: #166534; }
+        .explanation-box h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
+        .explanation-box ul { margin: 0; padding-left: 20px; }
+        .explanation-box li { margin-bottom: 8px; }
+        .output-section { display: none; }
     </style>
 </head>
 <body>
     <a href="../index.html" class="btn-back">← Back to Dashboard</a>
-    <h2>Transaction Ledger & Flow Auditor</h2>
+    <h2>Money Detective Ledger Auditor</h2>
+    
     <div class="card">
-        <h3>Transaction Report Cleaned</h3>
-        <p>This report has been fixed and isolated. No more 404 error codes!</p>
+        <label for="historyInput">Upload / Paste Transaction Data (Prompt 05)</label>
+        <p class="help-text">Paste rows from your statements. Each row must have a Date (YYYY-MM-DD), a Description, and an Amount.</p>
+        <textarea id="historyInput" placeholder="Paste data here...">2026-06-01 Apex Properties Rent 50,000
+2026-06-02 Metro Grocery Mart 12,500
+2026-06-03 City Power & Light 8,500
+2026-06-05 Shell Fuel Station 6,000
+2026-06-08 Netflix Subscription 1,500
+2026-06-10 Organic Foods Market 9,800
+2026-06-12 Prime Video 1,200
+2026-06-14 Downtown Bistro Dinner 7,500
+2026-06-15 State Insurance Premium 11,000
+2026-06-18 Metro Grocery Mart 11,200
+2026-06-20 Gym Membership 4,500
+2026-06-22 Shell Fuel Station 5,500
+2026-06-25 Cloud Storage Auto-Renew 300
+2026-06-25 Cloud Storage Auto-Renew 300
+2026-06-28 Corner Coffee Shop 1,200
+2026-06-29 Apparel Boutique 19,000</textarea>
+        
+        <button onclick="detectAuditFlags()">Execute Money Detective Audit</button>
     </div>
+
+    <!-- Output Section -->
+    <div id="outputSection" class="output-section">
+        <div class="summary-grid">
+            <div class="summary-card bg-total">Total Outflow <span>$ <span id="metricTotal">0</span></span></div>
+            <div class="summary-card bg-duplicate">Duplicate Transactions <span><span id="metricDup">0</span></span></div>
+            <div class="summary-card bg-recurring">Recurring Logs / Subs <span><span id="metricRec">0</span></span></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Audit Status Flag</th>
+                </tr>
+            </thead>
+            <tbody id="auditTableBody"></tbody>
+        </table>
+
+        <!-- Prompt 02: Simple English Explanations Box -->
+        <div class="explanation-box">
+            <h4>🕵️‍♂️ Audit Detective Analysis Report Notes (Plain English Logic)</h4>
+            <ul>
+                <li><strong>How duplicates are tracked:</strong> The algorithm monitors files for identical items matching the exact same <em>Date</em>, <em>Description</em>, and <em>Amount</em> back-to-back. If any subsequent match appears instantly, it tags it as a duplicate threat.</li>
+                <li><strong>How recurring items & subs are caught:</strong> The script normalizes keywords (stripping out dates, punctuation, and extra identifiers) to map base names. If a brand description pops up multiple times throughout the logs, it flags it as an operational recurring commitment or a subscription.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function detectAuditFlags() {
+            const rawText = document.getElementById('historyInput').value;
+            const tableBody = document.getElementById('auditTableBody');
+            tableBody.innerHTML = ''; // Reset target container
+            
+            // Regex captures: Date (YYYY-MM-DD), Name string, and Number (with optional commas)
+            const regex = /(\d{4}-\d{2}-\d{2})\s+(.+?)\s+(\d{1,3}(?:,\d{3})*|\d+)(?:\.\d{2})?\s*$/gm;
+            
+            let lines = rawText.split('\n');
+            let parsedItems = [];
+            let nameFrequencyMap = {};
+
+            // Pass 1: Parse and measure frequency structures
+            lines.forEach(line => {
+                let cleanLine = line.trim();
+                if (!cleanLine) return;
+
+                // Match regex rules
+                const match = /(\d{4}-\d{2}-\d{2})\s+(.+?)\s+([\d,]+)/.exec(cleanLine);
+                if (match) {
+                    const date = match[1];
+                    const desc = match[2].trim();
+                    const amount = parseFloat(match[3].replace(/,/g, ''));
+                    
+                    // Normalize text name string to map matches (e.g. "Metro Grocery Mart")
+                    const normName = desc.toLowerCase().replace(/subscription|auto-renew/g, '').trim();
+
+                    nameFrequencyMap[normName] = (nameFrequencyMap[normName] || 0) + 1;
+
+                    parsedItems.push({
+                        date, desc, amount, normName,
+                        flag: 'NORMAL',
+                        rawLine: cleanLine
+                    });
+                }
+            });
+
+            // Pass 2: Label specific risk conditions
+            let uniqueCheckMap = {};
+            let totalSpend = 0;
+            let countDups = 0;
+            let countRecur = 0;
+
+            parsedItems.forEach(item => {
+                totalSpend += item.amount;
+                
+                // Track duplicate tracking signature
+                const sign = `${item.date}_${item.normName}_${item.amount}`;
+                
+                if (uniqueCheckMap[sign]) {
+                    item.flag = 'DUPLICATE';
+                    countDups++;
+                } else {
+                    uniqueCheckMap[sign] = true;
+                    // If name has high frequency across transactions, it's flagged recurring
+                    if (nameFrequencyMap[item.normName] > 1) {
+                        item.flag = 'RECURRING';
+                        countRecur++;
+                    }
+                }
+            });
+
+            // Build dynamic display template markup (Prompt 03 highlights)
+            parsedItems.forEach(item => {
+                const tr = document.createElement('tr');
+                let badgeHtml = '';
+
+                if (item.flag === 'DUPLICATE') {
+                    tr.className = 'row-duplicate';
+                    badgeHtml = '<span class="badge badge-dup">⚠️ DUPLICATE PAYMENT</span>';
+                } else if (item.flag === 'RECURRING') {
+                    tr.className = 'row-recurring';
+                    badgeHtml = '<span class="badge badge-rec">🔄 RECURRING / SUB</span>';
+                } else {
+                    tr.className = 'row-normal';
+                    badgeHtml = '<span class="badge badge-ok">✅ SINGLE LOG</span>';
+                }
+
+                tr.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.desc}</td>
+                    <td>$${item.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    <td>${badgeHtml}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Apply metric calculations back to UI badges
+            document.getElementById('metricTotal').innerText = totalSpend.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('metricDup').innerText = countDups;
+            document.getElementById('metricRec').innerText = countRecur;
+            
+            document.getElementById('outputSection').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
